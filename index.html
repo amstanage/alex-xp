@@ -546,6 +546,7 @@
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     transition: opacity 0.6s ease;
+    cursor: pointer;
   }
   #boot-screen.fade-out { opacity: 0; pointer-events: none; }
   #boot-screen .xp-logo {
@@ -569,6 +570,7 @@
     background: linear-gradient(90deg, #0054E3, #3A8BF5, #0054E3);
     background-size: 200% 100%;
     animation: bootAnim 1.5s ease forwards, bootShine 0.8s linear infinite;
+    animation-play-state: paused;
   }
   @keyframes bootAnim { to { width: 100%; } }
   @keyframes bootShine { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
@@ -612,8 +614,8 @@
 <!-- BOOT SCREEN -->
 <div id="boot-screen">
   <div class="xp-logo">Alex<span>XP</span></div>
-  <div class="boot-bar-wrap"><div class="boot-bar"></div></div>
-  <div class="boot-text">Loading Alex's Portfolio...</div>
+  <div class="boot-bar-wrap"><div class="boot-bar" id="boot-bar"></div></div>
+  <div class="boot-text" id="boot-text">Click anywhere to start</div>
 </div>
 
 <audio id="xp-startup-sound" preload="auto">
@@ -745,19 +747,30 @@
     updateClock();
     setInterval(updateClock, 1000);
 
-    // Play the XP startup sound
-    const sound = document.getElementById('xp-startup-sound');
-    sound.volume = 0.5;
-    sound.play().catch(() => {});
+    const bootScreen = document.getElementById('boot-screen');
+    const bootBar = document.getElementById('boot-bar');
+    const bootText = document.getElementById('boot-text');
 
-    // Fade out boot screen after loading bar completes
-    setTimeout(() => {
-      document.getElementById('boot-screen').classList.add('fade-out');
+    // Wait for user click to satisfy browser autoplay policy
+    bootScreen.addEventListener('click', function startBoot() {
+      bootScreen.removeEventListener('click', startBoot);
+      bootText.textContent = 'Loading Alex\'s Portfolio...';
+      bootBar.style.animationPlayState = 'running';
+
+      // Play the XP startup sound (now allowed after user interaction)
+      const sound = document.getElementById('xp-startup-sound');
+      sound.volume = 0.5;
+      sound.play().catch(() => {});
+
+      // Fade out boot screen after loading bar completes
       setTimeout(() => {
-        document.getElementById('boot-screen').style.display = 'none';
-        openWindow('about');
-      }, 600);
-    }, 2000);
+        bootScreen.classList.add('fade-out');
+        setTimeout(() => {
+          bootScreen.style.display = 'none';
+          openWindow('about');
+        }, 600);
+      }, 2000);
+    });
   });
 
   function updateClock() {
