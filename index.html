@@ -611,10 +611,14 @@
 
 <!-- BOOT SCREEN -->
 <div id="boot-screen">
-  <div class="xp-logo">Windows<span>XP</span></div>
+  <div class="xp-logo">Alex<span>XP</span></div>
   <div class="boot-bar-wrap"><div class="boot-bar"></div></div>
   <div class="boot-text">Loading Alex's Portfolio...</div>
 </div>
+
+<audio id="xp-startup-sound" preload="auto">
+  <source src="windows-xp-startup.mp3" type="audio/mpeg">
+</audio>
 
 <!-- DESKTOP -->
 <div id="desktop" oncontextmenu="showContextMenu(event)">
@@ -738,6 +742,15 @@
 
   // ===== BOOT =====
   window.addEventListener('load', () => {
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // Play the XP startup sound
+    const sound = document.getElementById('xp-startup-sound');
+    sound.volume = 0.5;
+    sound.play().catch(() => {});
+
+    // Fade out boot screen after loading bar completes
     setTimeout(() => {
       document.getElementById('boot-screen').classList.add('fade-out');
       setTimeout(() => {
@@ -745,8 +758,6 @@
         openWindow('about');
       }, 600);
     }, 2000);
-    updateClock();
-    setInterval(updateClock, 1000);
   });
 
   function updateClock() {
